@@ -32,7 +32,7 @@ prompt = ChatPromptTemplate.from_template(
     {context}
     <context>
     Question:{input}
-    
+
     """
 )
 def create_vector_embedding():
@@ -55,6 +55,21 @@ import time
 
 if user_prompt:
     document_chain =  create_stuff_document_chain(llm,prompt)
+    retriever = st.session_state.vectors.as_retriever()
+    retriever_chain = create_retrieval_chain(retriever,document_chain)
+
+    start = time.process_time()
+    response = retrieval_chain.invoke({'input':user_prompt})
+    print(f"response time :{time.process_time()-start}")
+
+    st.write(response['amswer'])
+    ## with stremlit  expander 
+    with st.expander("Document similarity search"):
+        for i,doc in enumerate(response['context']):
+            st.write(doc.page_content)
+            st.write("----------------------------------")
+
+
 
 
 
