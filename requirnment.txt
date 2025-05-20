@@ -1,0 +1,10 @@
+python-dotenv
+langchain_community
+langchain_core
+langchain-groq
+streamlit
+openai
+langchain
+transformers
+torch
+numpy
