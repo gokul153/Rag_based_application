@@ -11,3 +11,5 @@ numpy
 langchain 
 langchain-community
 pypdf
+faiss-cpu
+langchain_openai

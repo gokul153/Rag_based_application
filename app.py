@@ -15,11 +15,10 @@ from langchain_community.vectorstores import FAISS
 from langchain.document_loaders import PyPDFDirectoryLoader
 from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 load_dotenv()
 
 ### load the Groq api
-
+os.environ['OPENAI_API_KEY']=os.getenv("OPENAI_API_KEY")
 os.environ['GROQ_API_KEY'] = os.getenv("GROQ_API_KEY")
 
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -38,12 +37,14 @@ prompt = ChatPromptTemplate.from_template(
 )
 def create_vector_embedding():
     if "vectors" not in st.session_state:
-        st.session_state.embeddings = OllamaEmbeddings()
+        st.session_state.embeddings = OllamaEmbeddings(model="llama3.2:latest")
         st.session_state.loader = PyPDFDirectoryLoader("reasearch_paper")  ## Data injestion step 
+        print("document loaded")
         st.session_state.docs = st.session_state.loader.load()  ## document loading 
         st.session_state.text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap=200)
         st.session_state.final_documents = st.session_state.text_splitter.split_documents(st.session_state.docs[:50])
         st.session_state.vectors = FAISS.from_documents(st.session_state.final_documents,st.session_state.embeddings)
+        print("vector complected")
 
 
 user_prompt = st.text_input("Enter your query")
@@ -55,15 +56,16 @@ if st.button("Document Embedding"):
 import time 
 
 if user_prompt:
-    document_chain =  create_stuff_document_chain(llm,prompt)
+    document_chain =  create_stuff_documents_chain(llm,prompt)
     retriever = st.session_state.vectors.as_retriever()
     retriever_chain = create_retrieval_chain(retriever,document_chain)
 
     start = time.process_time()
-    response = retrieval_chain.invoke({'input':user_prompt})
+    response = retriever_chain.invoke({'input':user_prompt})
+    print(response)
     print(f"response time :{time.process_time()-start}")
 
-    st.write(response['amswer'])
+    st.write(response['answer'])
     ## with stremlit  expander 
     with st.expander("Document similarity search"):
         for i,doc in enumerate(response['context']):
