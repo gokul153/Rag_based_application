@@ -8,3 +8,6 @@ langchain
 transformers
 torch
 numpy
+langchain 
+langchain-community
+pypdf

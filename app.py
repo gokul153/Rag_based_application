@@ -7,10 +7,11 @@ import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import OllamaEmbeddings
-from langchain_community.combine_documents import create_stuff_document_chain
-from langchain import ChatPromptTemplate
-from langchain import RetrievalChain
-from langchain_community.vectorstores import  FAISS
+from langchain.chains.combine_documents import create_stuff_documents_chain
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains import create_retrieval_chain
+from langchain_community.vectorstores import FAISS
 from langchain.document_loaders import PyPDFDirectoryLoader
 from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -42,7 +43,7 @@ def create_vector_embedding():
         st.session_state.docs = st.session_state.loader.load()  ## document loading 
         st.session_state.text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap=200)
         st.session_state.final_documents = st.session_state.text_splitter.split_documents(st.session_state.docs[:50])
-        st.session_state.vectors = FAISS.from_documents(st.session_state.final_documents,st.session_state.embedding)
+        st.session_state.vectors = FAISS.from_documents(st.session_state.final_documents,st.session_state.embeddings)
 
 
 user_prompt = st.text_input("Enter your query")
